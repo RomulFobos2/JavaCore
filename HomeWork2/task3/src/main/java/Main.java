@@ -149,11 +149,19 @@ public class Main {
                     fuzzySearch("cwheeel", "cartwheel"); // false
                     fuzzySearch("lw", "cartwheel"); // false
          */
-
+        System.out.println("Задача 3");
+        System.out.println("Результаты нечеткого поиска:");
+        System.out.println(fuzzySearch("car", "ca6$$#_rtwheel")); // true
+        System.out.println(fuzzySearch("cwhl", "cartwheel")); // true
+        System.out.println(fuzzySearch("cwhee", "cartwheel")); // true
+        System.out.println(fuzzySearch("cartwheel", "cartwheel")); // true
+        System.out.println(fuzzySearch("cwheeel", "cartwheel")); // false
+        System.out.println(fuzzySearch("lw", "cartwheel")); // false
 
     }
 
 
+    //Ищем два числа в массиве, дающие сумарно переданоое значение в параметре summa и помещаем их в результирующий список result
     public static List<int[]> findSummaInArray(int[] array, int summa) {
         List<int[]> result = new ArrayList<>();
         for (int i = 0; i < array.length - 1; i++) {
@@ -165,5 +173,35 @@ public class Main {
             }
         }
         return result;
+    }
+
+    //Реализация алгоритма нечеткого поиска.
+    public static boolean fuzzySearch(String sourceStr, String dataStr) {
+        char[] findChars = sourceStr.toCharArray();
+        char[] dataChars = dataStr.toCharArray();
+        int[][] matrix = new int[findChars.length][dataChars.length];
+
+        //Составляем матрицу совпадений строки поиска и строки данных
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                if (findChars[i] == dataChars[j]) {
+                    matrix[i][j] = 1;
+                }
+            }
+        }
+
+        //Анализируем кол-во и последовательность совпадений
+        int count = 0;
+        int prevJ = -1;
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                if(matrix[i][j] == 1 & j > prevJ){
+                    count++;
+                    prevJ = j;
+                    break;
+                }
+            }
+        }
+        return (count == findChars.length);
     }
 }
