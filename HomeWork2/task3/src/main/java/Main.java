@@ -111,6 +111,8 @@ public class Main {
                 Key: Jack
                 Value:1
          */
+        System.out.println("Задача 1");
+        System.out.println("Отсортированное множество:");
         Map<String, Long> map = Arrays.stream(RAW_DATA)
                 .distinct()
                 .sorted(Comparator.comparing(Person::getName))
@@ -127,6 +129,13 @@ public class Main {
             [3, 4, 2, 7], 10 -> [3, 7] - вывести пару менно в скобках, которые дают сумму - 10
          */
 
+        List<int[]> allSolves = findSummaInArray(new int[]{3, 4, 2, 7}, 10);
+        System.out.println("Задача 2");
+        System.out.println("Пары чисел, которые дают в сумме переданное в метод число:");
+        for(int[] solves : allSolves){
+            System.out.println(Arrays.toString(solves));
+        }
+
 
 
         /*
@@ -142,5 +151,19 @@ public class Main {
          */
 
 
+    }
+
+
+    public static List<int[]> findSummaInArray(int[] array, int summa) {
+        List<int[]> result = new ArrayList<>();
+        for (int i = 0; i < array.length - 1; i++) {
+            int var = array[i];
+            for (int j = i + 1; j < array.length; j++) {
+                if (var + array[j] == summa) {
+                    result.add(new int[]{var, array[j]});
+                }
+            }
+        }
+        return result;
     }
 }
