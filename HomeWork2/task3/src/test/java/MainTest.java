@@ -23,7 +23,7 @@ public class MainTest {
     @Test
     public void fuzzySearchTest_4() {
         boolean result = true;
-        Assert.assertEquals("Минимальное значение должно быть = 0", result, Main.fuzzySearch("cartwheel", "cartwheel"));
+        Assert.assertEquals("Результат поиска должен быть - true", result, Main.fuzzySearch("cartwheel", "cartwheel"));
     }
 
     @Test

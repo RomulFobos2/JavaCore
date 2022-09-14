@@ -1,5 +1,8 @@
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
 
 public class Main {
 
@@ -113,15 +116,9 @@ public class Main {
          */
         System.out.println("Задача 1");
         System.out.println("Отсортированное множество:");
-        Map<String, Long> map = Arrays.stream(RAW_DATA)
-                .distinct()
-                .sorted(Comparator.comparing(Person::getName))
-                .collect(Collectors.groupingBy(Person::getName, LinkedHashMap::new, Collectors.counting()));
 
-        for (Map.Entry<String, Long> entry : map.entrySet()) {
-            System.out.println("Key: " + entry.getKey());
-            System.out.println("Value: " + entry.getValue().toString());
-        }
+        getSortMapPerson(RAW_DATA).forEach((k, v) -> System.out.println("Key: " + k + "\nValue: " + v));
+        System.out.println();
 
         /*
         Task2
@@ -129,14 +126,10 @@ public class Main {
             [3, 4, 2, 7], 10 -> [3, 7] - вывести пару менно в скобках, которые дают сумму - 10
          */
 
-        List<int[]> allSolves = findSummaInArray(new int[]{3, 4, 2, 7}, 10);
         System.out.println("Задача 2");
         System.out.println("Пары чисел, которые дают в сумме переданное в метод число:");
-        for(int[] solves : allSolves){
-            System.out.println(Arrays.toString(solves));
-        }
-
-
+        System.out.println(Arrays.toString(getFirstPairSum(new int[]{3, 4, 2, 7}, 10)));
+        System.out.println();
 
         /*
         Task3
@@ -157,51 +150,59 @@ public class Main {
         System.out.println(fuzzySearch("cartwheel", "cartwheel")); // true
         System.out.println(fuzzySearch("cwheeel", "cartwheel")); // false
         System.out.println(fuzzySearch("lw", "cartwheel")); // false
-
     }
 
-
-    //Ищем два числа в массиве, дающие сумарно переданоое значение в параметре summa и помещаем их в результирующий список result
-    public static List<int[]> findSummaInArray(int[] array, int summa) {
-        List<int[]> result = new ArrayList<>();
-        for (int i = 0; i < array.length - 1; i++) {
-            int var = array[i];
-            for (int j = i + 1; j < array.length; j++) {
-                if (var + array[j] == summa) {
-                    result.add(new int[]{var, array[j]});
-                }
-            }
+    //Убрать дубликаты, сгруппировать по имени, отсортировать по имени и id
+    public static Map<String, Long> getSortMapPerson(Person[] persons) {
+        if (persons != null) {
+            return Arrays.stream(persons)
+                    .filter(e -> Objects.nonNull(e.getName()))
+                    .distinct()
+                    .sorted(Comparator.comparing(Person::getName))
+                    .sorted(Comparator.comparing(Person::getId))
+                    .collect(groupingBy(Person::getName, counting()));
         }
-        return result;
+        return new HashMap<>();
+    }
+
+    //Ищем первые два числа в массиве, дающие сумарно переданоое значение в параметре summa
+    public static int[] getFirstPairSum(int[] arr, int s) {
+        if (arr != null) {
+            return Arrays.stream(arr).flatMap(a1 -> Arrays.stream(arr)
+                            .flatMap(a2 -> a1 + a2 == s ? IntStream.of(a1, a2) : IntStream.empty())
+                            .findFirst().stream())
+                    .toArray();
+        }
+        return new int[]{0, 0};
     }
 
     //Реализация алгоритма нечеткого поиска.
-    public static boolean fuzzySearch(String sourceStr, String dataStr) {
-        char[] findChars = sourceStr.toCharArray();
-        char[] dataChars = dataStr.toCharArray();
-        int[][] matrix = new int[findChars.length][dataChars.length];
-
-        //Составляем матрицу совпадений строки поиска и строки данных
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                if (findChars[i] == dataChars[j]) {
-                    matrix[i][j] = 1;
+    static boolean fuzzySearch(String expression, String text){
+        if(expression != null && text != null){
+            //Проверка строк на идентичность
+            if(expression.equals(text)){
+                return true;
+            }
+            else {
+                //Реализация поиска
+                Queue<Character> characterQueue = new ArrayDeque<>();
+                for (Character c : expression.toCharArray()){
+                    characterQueue.offer(c);
                 }
+                for (Character c : text.toCharArray()){
+                    if(!characterQueue.isEmpty() && c == characterQueue.element()){ characterQueue.remove();}
+                }
+                return characterQueue.isEmpty();
             }
         }
-
-        //Анализируем кол-во и последовательность совпадений
-        int count = 0;
-        int prevJ = -1;
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                if(matrix[i][j] == 1 & j > prevJ){
-                    count++;
-                    prevJ = j;
-                    break;
-                }
+        else {
+            if(expression == null){
+                System.out.println("Искомая строка == null");
             }
+            if(text == null){
+                System.out.println("Текст == null");
+            }
+            return false;
         }
-        return (count == findChars.length);
     }
 }
